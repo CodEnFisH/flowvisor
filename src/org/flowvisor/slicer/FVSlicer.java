@@ -320,6 +320,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg, FlowvisorChangedList
 		return (this.allowAllPorts || this.allowedPorts.containsKey(port));
 	}
 
+	// Ze:(6) Send this msg to the controller
 	@Override
 	public void sendMsg(OFMessage msg, FVSendMsg from) {
 		if (this.msgStream != null) {
