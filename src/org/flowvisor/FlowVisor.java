@@ -149,6 +149,7 @@ public class FlowVisor {
 		return false;
 	}
 
+	//Ze: entry
 	public void run() throws ConfigError, IOException, UnhandledEvent {
 		FVLog.log(LogLevel.DEBUG, null, "HALLO");
 		FlowVisor.setInstance(this);
@@ -163,10 +164,15 @@ public class FlowVisor {
 		if (port == 0)
 			port = FVConfig.getListenPort();
 
+		//Ze: Do two things: 
+		// 1 - create a topology controller, which is a mini-controller
+		// inside the FV to report the network topology
+		
 		// init topology discovery, if configured for it
 		if (TopologyController.isConfigured())
 			handlers.add(TopologyController.spawn(pollLoop));
 
+		// 2 - start to listen a port and accept the swtich connection
 		// init switchAcceptor
 		OFSwitchAcceptor acceptor = new OFSwitchAcceptor(pollLoop, port, 16);
 		acceptor.setSlicerLimits(sliceLimits);
