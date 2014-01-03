@@ -283,9 +283,12 @@ public class FVClassifier implements FVEventHandler, FVSendMsg, FlowMapChangedLi
 	 * @throws IOException
 	 */
 
+	// Ze:(3) - hand shaking with a new switch (strange, why TopologyController also handshake?? bug??)
 	public void init() throws IOException {
+		// Ze:(3) - hand shaking with a new switch 
 		// send initial handshake
 		sendMsg(new OFHello(), this);
+		// Ze:(3) - hand shaking with a new switch 
 		// delete all entries in the flowtable
 		OFMatch match = new OFMatch();
 		match.setWildcards(OFMatch.OFPFW_ALL);
@@ -295,6 +298,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg, FlowMapChangedLi
 		fm.setOutPort(OFPort.OFPP_NONE);
 		fm.setBufferId(0xffffffff); // buffer to NONE
 		sendMsg(fm, this);
+		// Ze:(3) - hand shaking with a new switch (see below)
 		// request the switch's features
 		sendMsg(new OFFeaturesRequest(), this);
 		msgStream.flush();
@@ -309,8 +313,9 @@ public class FVClassifier implements FVEventHandler, FVSendMsg, FlowMapChangedLi
 		int ops = SelectionKey.OP_READ;
 		if (msgStream.needsFlush())
 			ops |= SelectionKey.OP_WRITE;
+		// Ze:(3) - the real hookup 
 		// this now calls FlowVisor.addHandler()
-		loop.register(sock, ops, this);
+		loop.register(sock, ops, this); 
 		// start up keep alive events
 		this.keepAlive = new OFKeepAlive(this, this, loop);
 		this.keepAlive.scheduleNextCheck();
@@ -378,6 +383,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg, FlowMapChangedLi
 		return loop.getThreadContext();
 	}
 
+	
 	@Override
 	public void handleEvent(FVEvent e) throws UnhandledEvent {
 		if (this.shutdown) {
@@ -474,6 +480,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg, FlowMapChangedLi
 		}
 	}*/
 
+	// Ze:(3) - new msg come in, please handle it (skipped other events)
 	void handleIOEvent(FVIOEvent e) {
 		int ops = e.getSelectionKey().readyOps();
 
@@ -483,6 +490,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg, FlowMapChangedLi
 				List<OFMessage> newMsgs = msgStream.read();
 						//.read(FVClassifier.MessagesPerRead);
 				if (newMsgs != null) {
+					// Ze:(3) - new msg come in, please handle it
 					for (OFMessage m : newMsgs) {
 						if (m == null) {
 							FVLog.log(LogLevel.ALERT, this,
@@ -561,7 +569,8 @@ public class FVClassifier implements FVEventHandler, FVSendMsg, FlowMapChangedLi
 		this.msgStream = null; // trick GC; prob not needed
 	}
 
-	/**
+	
+	/** Ze(3):
 	 * Main function Pass this message on to the appropriate Slicer as defined
 	 * by XID, FlowSpace, config, etc.
 	 *
