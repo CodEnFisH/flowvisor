@@ -37,6 +37,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 	 * packet's controller(s) by flowspace and send to them
 	 */
 
+	// Ze:(5) How is classifyFromSwitch implemented in PktIn
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
 		// handle LLDP as a special (hackish) case
@@ -46,12 +47,13 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 		this.lookupByFlowSpace(fvClassifier);
 
 	}
-
+	
+	// Ze:(5) How is classifyFromSwitch implemented in PktIn
 	private void lookupByFlowSpace(FVClassifier fvClassifier) {
 		SliceAction sliceAction;
 		int perms;
 		// grab single matching rule: only one because it's a point in flowspace
-		FlowEntry flowEntry = fvClassifier.getSwitchFlowMap().matches(
+		FlowEntry flowEntry = fvClassifier.getSwitchFlowMap().matches( // Ze:(5): FlowMap is the matcher class
 				fvClassifier.getSwitchInfo().getDatapathId(), this.getInPort(),
 				this.getPacketData());
 		if (flowEntry == null) {
@@ -66,6 +68,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 			sliceAction = (SliceAction) ofAction;
 			perms = sliceAction.getSlicePerms();
 			if ((perms & (SliceAction.READ | SliceAction.WRITE)) != 0) {
+				// Ze:(5):
 				// lookup slice and send msg to them
 				// TODO record buffer id for later validation
 				FVSlicer fvSlicer = fvClassifier.getSlicerByName(sliceAction
