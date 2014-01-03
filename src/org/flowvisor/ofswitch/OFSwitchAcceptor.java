@@ -43,6 +43,7 @@ public class OFSwitchAcceptor implements FVEventHandler {
 					backlog);
 		} catch (java.net.SocketException e) {
 			// try default/ipv4 if that fails
+			// Ze(2): swAcceptor just bind to some listening port and accept connection from switch
 			try {
 				FVLog.log(LogLevel.NOTE, this, "failed to bind IPv6 address; trying IPv4");
 				ssc.socket().bind(
@@ -127,7 +128,8 @@ public class OFSwitchAcceptor implements FVEventHandler {
 
 	void handleIOEvent(FVIOEvent event) {
 		SocketChannel sock = null;
-
+		
+		// Ze(2): swAcceptor just bind to some listening port and accept connection from switch
 		try {
 			sock = ssc.accept();
 			if (sock == null) {
@@ -136,9 +138,10 @@ public class OFSwitchAcceptor implements FVEventHandler {
 				return;
 			}
 			FVLog.log(LogLevel.INFO, this, "got new connection: " + sock);
+			// Ze(2): create new classifier for each new switch
 			FVClassifier fvc = new FVClassifier(pollLoop, sock);
 			fvc.setSlicerLimits(this.slicerLimits);
-			fvc.init();
+			fvc.init(); // Start the classifier
 		} catch (IOException e) // ignore IOExceptions -- is this the right
 		// thing to do?
 		{
